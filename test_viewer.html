@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizenship Test - Practice</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: #1a365d;
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            flex-wrap: wrap;
+        }
+
+        .pass-indicator {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+
+        .pass-indicator.passing {
+            background: #38a169;
+        }
+
+        .pass-indicator.failing {
+            background: #e53e3e;
+        }
+
+        .main-content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .controls select {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .controls select:focus {
+            outline: none;
+            border-color: #3182ce;
+        }
+
+        .mode-info {
+            background: #ebf8ff;
+            border: 2px solid #90cdf4;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #2b6cb0;
+        }
+
+        .mode-info strong {
+            color: #1a365d;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .question-number {
+            background: #3182ce;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .question-progress {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #2d3748;
+            margin-bottom: 25px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #3182ce;
+            background: #ebf8ff;
+        }
+
+        .option.selected {
+            border-color: #3182ce;
+            background: #ebf8ff;
+        }
+
+        .option.correct {
+            border-color: #38a169;
+            background: #f0fff4;
+        }
+
+        .option.incorrect {
+            border-color: #e53e3e;
+            background: #fff5f5;
+        }
+
+        .option.disabled {
+            cursor: default;
+        }
+
+        .option-label {
+            font-weight: bold;
+            color: #3182ce;
+            margin-right: 12px;
+            min-width: 25px;
+        }
+
+        .option.correct .option-label {
+            color: #38a169;
+        }
+
+        .option.incorrect .option-label {
+            color: #e53e3e;
+        }
+
+        .option-text {
+            flex: 1;
+            color: #4a5568;
+        }
+
+        .option-image {
+            max-width: 150px;
+            max-height: 100px;
+            border-radius: 6px;
+            margin-top: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .option-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #e2e8f0;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #f0fff4;
+            color: #276749;
+            border: 2px solid #9ae6b4;
+        }
+
+        .feedback.incorrect {
+            background: #fff5f5;
+            color: #c53030;
+            border: 2px solid #feb2b2;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .nav-btn.secondary:hover:not(:disabled) {
+            background: #cbd5e0;
+        }
+
+        .nav-btn.primary {
+            background: #3182ce;
+            color: white;
+        }
+
+        .nav-btn.primary:hover:not(:disabled) {
+            background: #2c5282;
+        }
+
+        .shuffle-btn {
+            background: #805ad5;
+            color: white;
+        }
+
+        .shuffle-btn:hover {
+            background: #6b46c1;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #718096;
+        }
+
+        .error {
+            background: #fff5f5;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .test-complete {
+            text-align: center;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .test-complete h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .test-complete .score {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .test-complete .score.pass {
+            color: #38a169;
+        }
+
+        .test-complete .score.fail {
+            color: #e53e3e;
+        }
+
+        .test-complete p {
+            color: #718096;
+            margin: 10px 0;
+        }
+
+        .flag-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            color: #718096;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 15px;
+        }
+
+        .flag-btn:hover {
+            border-color: #ed8936;
+            color: #ed8936;
+        }
+
+        .flag-btn.flagged {
+            border-color: #ed8936;
+            background: #fffaf0;
+            color: #c05621;
+        }
+
+        .flagged-count {
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: #ed8936;
+            font-weight: bold;
+        }
+
+        .flagged-count:hover {
+            background: #dd6b20;
+        }
+
+        .clear-flags-btn {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            color: #718096;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .clear-flags-btn:hover {
+            background: #fff5f5;
+            border-color: #e53e3e;
+            color: #e53e3e;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .question-text {
+                font-size: 1.1rem;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .navigation {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .nav-btn {
+                flex: 1;
+                min-width: 100px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .controls select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Test pro zkoušku z občanského základu</h1>
+            <div class="stats">
+                <span>Správně: <strong id="correct-count">0</strong>/30</span>
+                <span>Špatně: <strong id="incorrect-count">0</strong></span>
+                <span class="pass-indicator failing" id="pass-indicator">K úspěchu: 18</span>
+                <span class="flagged-count" id="flagged-count" onclick="showFlaggedQuestions()" style="display: none;">⚑ 0</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="controls">
+                <select id="section-select">
+                    <option value="test">Test (30 otázek, 1 z každé sekce)</option>
+                    <option value="all">Všechny otázky (300)</option>
+                    <option value="flagged" id="flagged-option" style="display: none;">⚑ Označené otázky (0)</option>
+                </select>
+                <select id="mode-select">
+                    <option value="coverage">Postupné pokrytí (kola 1-10)</option>
+                    <option value="random">Náhodný výběr</option>
+                </select>
+            </div>
+
+            <div class="mode-info" id="mode-info">
+                <strong>Postupné pokrytí - Kolo 1/10:</strong> Otázky č. 1 z každé sekce.
+                Po dokončení klikněte "Další kolo" pro otázky č. 2.
+            </div>
+
+            <div id="question-container">
+                <div class="loading">Načítání otázek...</div>
+            </div>
+
+            <div class="navigation" style="display: none;" id="navigation">
+                <button class="nav-btn secondary" id="prev-btn">← Předchozí</button>
+                <button class="nav-btn shuffle-btn" id="shuffle-btn">Další kolo</button>
+                <button class="nav-btn primary" id="next-btn">Další →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structures
+        let questionsBySection = {}; // { sectionId: [questions] }
+        let sections = []; // Section metadata
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Map();
+
+        // Mode state
+        let currentMode = 'coverage'; // 'coverage' or 'random'
+        let currentRound = 1; // 1-10 for coverage mode
+        let viewMode = 'test'; // 'test' (30 questions) or 'all' (300) or section id or 'shared'
+        let sharedQuestions = []; // Temporary list from URL for shared mode
+
+        const PASS_THRESHOLD = 18; // Need 18/30 to pass
+
+        // Flagged questions functions
+        function getFlaggedQuestions() {
+            return JSON.parse(localStorage.getItem('flaggedQuestions') || '[]');
+        }
+
+        function saveFlaggedQuestions(flags) {
+            localStorage.setItem('flaggedQuestions', JSON.stringify(flags));
+        }
+
+        function isQuestionFlagged(sectionId, questionId) {
+            return getFlaggedQuestions().includes(`${sectionId}.${questionId}`);
+        }
+
+        function toggleFlag(sectionId, questionId) {
+            const key = `${sectionId}.${questionId}`;
+            let flags = getFlaggedQuestions();
+            if (flags.includes(key)) {
+                flags = flags.filter(f => f !== key);
+            } else {
+                flags.push(key);
+            }
+            saveFlaggedQuestions(flags);
+            updateFlaggedUI();
+            renderQuestion(); // Re-render to update button state
+        }
+
+        function updateFlaggedUI() {
+            const flags = getFlaggedQuestions();
+            const count = flags.length;
+
+            // Update header counter
+            const counterEl = document.getElementById('flagged-count');
+            if (count > 0) {
+                counterEl.style.display = 'inline';
+                counterEl.textContent = `⚑ ${count}`;
+            } else {
+                counterEl.style.display = 'none';
+            }
+
+            // Update dropdown option
+            const flaggedOption = document.getElementById('flagged-option');
+            if (count > 0) {
+                flaggedOption.style.display = 'block';
+                flaggedOption.textContent = `⚑ Označené otázky (${count})`;
+            } else {
+                flaggedOption.style.display = 'none';
+                // If currently viewing flagged and none left, switch to test
+                if (viewMode === 'flagged') {
+                    document.getElementById('section-select').value = 'test';
+                    viewMode = 'test';
+                    generateTestQuestions();
+                }
+            }
+        }
+
+        function showFlaggedQuestions() {
+            const flags = getFlaggedQuestions();
+            if (flags.length > 0) {
+                document.getElementById('section-select').value = 'flagged';
+                viewMode = 'flagged';
+                generateTestQuestions();
+            }
+        }
+
+        function clearAllFlags() {
+            if (confirm('Opravdu chcete odstranit všechny označené otázky?')) {
+                saveFlaggedQuestions([]);
+                updateFlaggedUI();
+                if (viewMode === 'flagged') {
+                    document.getElementById('section-select').value = 'test';
+                    viewMode = 'test';
+                    generateTestQuestions();
+                }
+            }
+        }
+
+        async function copyFlaggedQuestions() {
+            const flags = getFlaggedQuestions();
+            if (flags.length === 0) return;
+
+            try {
+                await navigator.clipboard.writeText(flags.join(', '));
+                // Brief feedback
+                const btn = document.getElementById('copy-flags-btn');
+                const original = btn.textContent;
+                btn.textContent = '✓ Zkopírováno!';
+                setTimeout(() => btn.textContent = original, 1500);
+            } catch (err) {
+                alert('Nepodařilo se zkopírovat: ' + err.message);
+            }
+        }
+
+        async function shareFlaggedQuestions() {
+            const flags = getFlaggedQuestions();
+            if (flags.length === 0) return;
+
+            try {
+                const url = `${location.origin}${location.pathname}#shared=${flags.join(',')}`;
+                await navigator.clipboard.writeText(url);
+
+                const btn = document.getElementById('share-flags-btn');
+                const original = btn.textContent;
+                btn.textContent = '✓ Zkopírováno!';
+                setTimeout(() => btn.textContent = original, 1500);
+            } catch (err) {
+                alert('Nepodařilo se zkopírovat: ' + err.message);
+            }
+        }
+
+        // URL hash functions for bookmarking/sharing
+        function updateUrlHash() {
+            if (currentQuestions.length === 0) return;
+            const q = currentQuestions[currentIndex];
+
+            if (viewMode === 'shared') {
+                // Keep shared list, add current question
+                history.replaceState(null, '', `#shared=${sharedQuestions.join(',')}&q=${q.sectionId}.${q.id}`);
+            } else {
+                history.replaceState(null, '', `#${q.sectionId}.${q.id}`);
+            }
+        }
+
+        function loadFromUrlHash() {
+            const hash = window.location.hash.slice(1);
+            if (!hash) return false;
+
+            // Check for shared questions: #shared=5.1,20.3,30.7 or #shared=5.1,20.3&q=20.3
+            if (hash.startsWith('shared=')) {
+                const parts = hash.split('&q=');
+                const idsStr = parts[0].slice(7); // Remove 'shared='
+                const ids = idsStr.split(',').filter(id => /^\d+\.\d+$/.test(id));
+
+                if (ids.length > 0) {
+                    sharedQuestions = ids;
+                    viewMode = 'shared';
+                    generateTestQuestions();
+
+                    // If specific question in URL, navigate to it
+                    if (parts[1]) {
+                        const [sectionId, questionId] = parts[1].split('.').map(Number);
+                        const idx = currentQuestions.findIndex(q => q.sectionId === sectionId && q.id === questionId);
+                        if (idx >= 0) {
+                            currentIndex = idx;
+                            renderQuestion();
+                        }
+                    }
+                    return true;
+                }
+            }
+
+            // Single question: #17.8
+            const match = hash.match(/^(\d+)\.(\d+)$/);
+            if (!match) return false;
+
+            const sectionId = parseInt(match[1]);
+            const questionId = parseInt(match[2]);
+
+            // Switch to that section
+            viewMode = String(sectionId);
+            document.getElementById('section-select').value = sectionId;
+            generateTestQuestions();
+
+            // Find question index
+            const idx = currentQuestions.findIndex(q => q.id === questionId);
+            if (idx >= 0) {
+                currentIndex = idx;
+                renderQuestion();
+            }
+            return true;
+        }
+
+        // Handle browser back/forward
+        window.addEventListener('hashchange', () => {
+            loadFromUrlHash();
+        });
+
+        async function loadQuestions() {
+            try {
+                const response = await fetch('questions_all.json');
+                if (!response.ok) throw new Error('Failed to load questions');
+                const data = await response.json();
+
+                // Group questions by section
+                sections = data.sections;
+                questionsBySection = {};
+
+                data.sections.forEach(section => {
+                    questionsBySection[section.id] = section.questions.map(q => ({
+                        ...q,
+                        sectionId: section.id,
+                        sectionName: section.name
+                    }));
+                });
+
+                // Populate section selector with individual sections
+                const select = document.getElementById('section-select');
+                data.sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section.id;
+                    option.textContent = `${section.id}. ${section.name} (10 otázek)`;
+                    select.appendChild(option);
+                });
+
+                document.getElementById('navigation').style.display = 'flex';
+                updateFlaggedUI();
+
+                // Try to restore from URL hash, otherwise start fresh
+                if (!loadFromUrlHash()) {
+                    generateTestQuestions();
+                }
+            } catch (error) {
+                document.getElementById('question-container').innerHTML =
+                    `<div class="error">Chyba při načítání otázek: ${error.message}<br><br>
+                    Ujistěte se, že soubor questions_all.json je ve stejné složce.</div>`;
+            }
+        }
+
+        function generateTestQuestions() {
+            currentQuestions = [];
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions.clear();
+
+            if (viewMode === 'test') {
+                // Test mode: 30 questions, 1 from each section
+                for (let sectionId = 1; sectionId <= 30; sectionId++) {
+                    const sectionQuestions = questionsBySection[sectionId];
+                    if (!sectionQuestions) continue;
+
+                    let question;
+                    if (currentMode === 'coverage') {
+                        // Get question with id === currentRound
+                        question = sectionQuestions.find(q => q.id === currentRound);
+                    } else {
+                        // Random: pick random question from section
+                        const randomIdx = Math.floor(Math.random() * sectionQuestions.length);
+                        question = sectionQuestions[randomIdx];
+                    }
+
+                    if (question) {
+                        currentQuestions.push(question);
+                    }
+                }
+            } else if (viewMode === 'all') {
+                // All questions mode
+                for (let sectionId = 1; sectionId <= 30; sectionId++) {
+                    const sectionQuestions = questionsBySection[sectionId] || [];
+                    currentQuestions.push(...sectionQuestions);
+                }
+                // Shuffle all questions
+                shuffleArray(currentQuestions);
+            } else if (viewMode === 'flagged') {
+                // Flagged questions mode
+                const flags = getFlaggedQuestions();
+                for (const flag of flags) {
+                    const [sectionId, questionId] = flag.split('.').map(Number);
+                    const sectionQuestions = questionsBySection[sectionId] || [];
+                    const question = sectionQuestions.find(q => q.id === questionId);
+                    if (question) {
+                        currentQuestions.push(question);
+                    }
+                }
+                shuffleArray(currentQuestions);
+            } else if (viewMode === 'shared') {
+                // Shared questions from URL (view-only mode)
+                for (const id of sharedQuestions) {
+                    const [sectionId, questionId] = id.split('.').map(Number);
+                    const sectionQuestions = questionsBySection[sectionId] || [];
+                    const question = sectionQuestions.find(q => q.id === questionId);
+                    if (question) {
+                        currentQuestions.push(question);
+                    }
+                }
+                // Don't shuffle - preserve order from URL
+            } else {
+                // Single section mode
+                const sectionId = parseInt(viewMode);
+                currentQuestions = [...(questionsBySection[sectionId] || [])];
+            }
+
+            updateModeInfo();
+            updateStats();
+            renderQuestion();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function nextRoundOrShuffle() {
+            if (viewMode === 'test') {
+                if (currentMode === 'coverage') {
+                    // Advance to next round
+                    currentRound = (currentRound % 10) + 1;
+                }
+                // For random mode, just regenerate
+            }
+            generateTestQuestions();
+        }
+
+        function updateModeInfo() {
+            const modeInfo = document.getElementById('mode-info');
+            const shuffleBtn = document.getElementById('shuffle-btn');
+
+            if (viewMode === 'test') {
+                modeInfo.style.display = 'block';
+                if (currentMode === 'coverage') {
+                    modeInfo.innerHTML = `
+                        <strong>Postupné pokrytí - Kolo ${currentRound}/10:</strong>
+                        Otázky č. ${currentRound} z každé sekce (30 otázek).
+                        Po dokončení klikněte "Další kolo" pro otázky č. ${currentRound % 10 + 1}.
+                    `;
+                    shuffleBtn.textContent = `Další kolo (${currentRound % 10 + 1}/10)`;
+                } else {
+                    modeInfo.innerHTML = `
+                        <strong>Náhodný výběr:</strong>
+                        30 náhodných otázek (1 z každé sekce).
+                        Klikněte "Nový test" pro novou sadu otázek.
+                    `;
+                    shuffleBtn.textContent = 'Nový test';
+                }
+            } else if (viewMode === 'all') {
+                modeInfo.style.display = 'block';
+                modeInfo.innerHTML = `
+                    <strong>Všechny otázky:</strong>
+                    300 otázek v náhodném pořadí. Klikněte "Zamíchat" pro nové pořadí.
+                `;
+                shuffleBtn.textContent = 'Zamíchat';
+            } else if (viewMode === 'flagged') {
+                const flagCount = getFlaggedQuestions().length;
+                modeInfo.style.display = 'block';
+                if (flagCount === 0) {
+                    modeInfo.innerHTML = `
+                        <strong>Označené otázky:</strong>
+                        Žádné označené otázky. Označte otázky tlačítkem ⚑ během procvičování.
+                    `;
+                } else {
+                    modeInfo.innerHTML = `
+                        <strong>Označené otázky:</strong>
+                        ${flagCount} otázek k procvičení.
+                        <button id="copy-flags-btn" onclick="copyFlaggedQuestions()" style="margin-left: 10px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer;">📋 Kopírovat</button>
+                        <button id="share-flags-btn" onclick="shareFlaggedQuestions()" style="margin-left: 5px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer;">🔗 Sdílet</button>
+                        <button onclick="clearAllFlags()" style="margin-left: 5px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer;">Vymazat vše</button>
+                    `;
+                }
+                shuffleBtn.textContent = 'Zamíchat';
+            } else if (viewMode === 'shared') {
+                modeInfo.style.display = 'block';
+                modeInfo.innerHTML = `
+                    <strong>Sdílené otázky:</strong>
+                    ${sharedQuestions.length} otázek od kamaráda.
+                `;
+                shuffleBtn.textContent = 'Zamíchat';
+            } else {
+                // Single section
+                const sectionId = parseInt(viewMode);
+                const section = sections.find(s => s.id === sectionId);
+                modeInfo.style.display = 'block';
+                modeInfo.innerHTML = `
+                    <strong>Sekce ${sectionId}:</strong> ${section ? section.name : ''} (10 otázek)
+                `;
+                shuffleBtn.textContent = 'Zamíchat';
+            }
+        }
+
+        function renderQuestion() {
+            if (currentQuestions.length === 0) {
+                document.getElementById('question-container').innerHTML =
+                    '<div class="loading">Žádné otázky k zobrazení</div>';
+                return;
+            }
+
+            const q = currentQuestions[currentIndex];
+            const isAnswered = answeredQuestions.has(currentIndex);
+            const userAnswer = isAnswered ? answeredQuestions.get(currentIndex) : null;
+
+            let optionsHtml = q.options.map(opt => {
+                let classes = 'option';
+                if (isAnswered) {
+                    classes += ' disabled';
+                    if (opt.label === q.correct) {
+                        classes += ' correct';
+                    } else if (opt.label === userAnswer) {
+                        classes += ' incorrect';
+                    }
+                }
+                const imageHtml = opt.image
+                    ? `<img src="${opt.image}" alt="Option ${opt.label}" class="option-image" onerror="this.style.display='none'">`
+                    : '';
+                return `
+                    <div class="${classes}" data-label="${opt.label}">
+                        <span class="option-label">${opt.label})</span>
+                        <div class="option-content">
+                            <span class="option-text">${opt.text || ''}</span>
+                            ${imageHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            let feedbackHtml = '';
+            if (isAnswered) {
+                const isCorrect = userAnswer === q.correct;
+                feedbackHtml = `
+                    <div class="feedback show ${isCorrect ? 'correct' : 'incorrect'}">
+                        ${isCorrect ? '✓ Správně!' : `✗ Špatně. Správná odpověď je ${q.correct}.`}
+                    </div>
+                `;
+            }
+
+            const questionImageHtml = q.image
+                ? `<img src="${q.image}" alt="Question image" class="question-image" onerror="this.style.display='none'">`
+                : '';
+
+            const isFlagged = isQuestionFlagged(q.sectionId, q.id);
+            const flagBtnHtml = `
+                <button class="flag-btn ${isFlagged ? 'flagged' : ''}" onclick="toggleFlag(${q.sectionId}, ${q.id})">
+                    ⚑ ${isFlagged ? 'Označeno' : 'Označit'}
+                </button>
+            `;
+
+            document.getElementById('question-container').innerHTML = `
+                <div class="question-header">
+                    <span class="question-number">${q.sectionId}.${q.id}</span>
+                    <span class="question-progress">${currentIndex + 1} / ${currentQuestions.length}</span>
+                </div>
+                <div class="question-text">${q.text}</div>
+                ${questionImageHtml}
+                <div class="options">${optionsHtml}</div>
+                ${feedbackHtml}
+                <div style="margin-top: 15px; font-size: 0.85rem; color: #718096; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Sekce ${q.sectionId}: ${q.sectionName}</span>
+                    ${flagBtnHtml}
+                </div>
+            `;
+
+            // Add click handlers
+            if (!isAnswered) {
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.addEventListener('click', () => selectAnswer(opt.dataset.label));
+                });
+            }
+
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('next-btn').disabled = currentIndex === currentQuestions.length - 1;
+
+            // Check if test is complete
+            if (viewMode === 'test' && answeredQuestions.size === 30) {
+                showTestComplete();
+            }
+
+            // Update URL for bookmarking/sharing
+            updateUrlHash();
+        }
+
+        function showTestComplete() {
+            const passed = correctCount >= PASS_THRESHOLD;
+            const percentage = Math.round((correctCount / 30) * 100);
+
+            document.getElementById('question-container').innerHTML += `
+                <div class="test-complete">
+                    <h2>Test dokončen!</h2>
+                    <div class="score ${passed ? 'pass' : 'fail'}">${correctCount}/30</div>
+                    <p>${percentage}% správně</p>
+                    <p style="font-size: 1.2rem; color: ${passed ? '#38a169' : '#e53e3e'}; font-weight: bold;">
+                        ${passed ? '✓ ÚSPĚŠNĚ SLOŽENO' : '✗ NESLOŽENO (potřeba min. 18/30)'}
+                    </p>
+                </div>
+            `;
+        }
+
+        function selectAnswer(label) {
+            const q = currentQuestions[currentIndex];
+            answeredQuestions.set(currentIndex, label);
+
+            if (label === q.correct) {
+                correctCount++;
+            } else {
+                incorrectCount++;
+            }
+
+            updateStats();
+            renderQuestion();
+        }
+
+        function updateStats() {
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('incorrect-count').textContent = incorrectCount;
+
+            const passIndicator = document.getElementById('pass-indicator');
+            const remaining = PASS_THRESHOLD - correctCount;
+            const totalAnswered = correctCount + incorrectCount;
+            const canStillPass = (30 - totalAnswered) >= remaining;
+
+            if (correctCount >= PASS_THRESHOLD) {
+                passIndicator.textContent = '✓ Úspěch!';
+                passIndicator.className = 'pass-indicator passing';
+            } else if (!canStillPass && totalAnswered > 0) {
+                passIndicator.textContent = '✗ Nesloženo';
+                passIndicator.className = 'pass-indicator failing';
+            } else {
+                passIndicator.textContent = `K úspěchu: ${remaining}`;
+                passIndicator.className = 'pass-indicator failing';
+            }
+        }
+
+        function navigate(direction) {
+            currentIndex += direction;
+            currentIndex = Math.max(0, Math.min(currentIndex, currentQuestions.length - 1));
+            renderQuestion();
+        }
+
+        // Event listeners
+        document.getElementById('prev-btn').addEventListener('click', () => navigate(-1));
+        document.getElementById('next-btn').addEventListener('click', () => navigate(1));
+        document.getElementById('shuffle-btn').addEventListener('click', nextRoundOrShuffle);
+
+        document.getElementById('section-select').addEventListener('change', (e) => {
+            viewMode = e.target.value;
+            const modeSelect = document.getElementById('mode-select');
+
+            // Show/hide mode selector based on view
+            if (viewMode === 'test') {
+                modeSelect.style.display = 'block';
+            } else {
+                modeSelect.style.display = 'none';
+            }
+
+            generateTestQuestions();
+        });
+
+        document.getElementById('mode-select').addEventListener('change', (e) => {
+            currentMode = e.target.value;
+            if (currentMode === 'coverage') {
+                currentRound = 1; // Reset to round 1
+            }
+            generateTestQuestions();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') navigate(-1);
+            if (e.key === 'ArrowRight') navigate(1);
+            if (e.key >= '1' && e.key <= '4') {
+                const labels = ['A', 'B', 'C', 'D'];
+                const label = labels[parseInt(e.key) - 1];
+                if (!answeredQuestions.has(currentIndex)) {
+                    selectAnswer(label);
+                }
+            }
+            if (e.key.toUpperCase() >= 'A' && e.key.toUpperCase() <= 'D') {
+                if (!answeredQuestions.has(currentIndex)) {
+                    selectAnswer(e.key.toUpperCase());
+                }
+            }
+        });
+
+        // Initialize
+        loadQuestions();
+    </script>
+</body>
+</html>
