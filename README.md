@@ -78,11 +78,12 @@ This checks:
 
 ## Data Source
 
-Official test question bank from the Czech Ministry of Education:
-
+- **Questions**: [Národní pedagogický institut ČR](https://www.npi.cz/) (National Pedagogical Institute of the Czech Republic)
 - **Source**: <https://cestina-pro-cizince.cz/obcanstvi/databanka-uloh/>
 - **Total questions**: 300 (30 categories × 10 questions each)
 
 ## License
 
-This tool is for educational purposes. The test questions are published by the Czech government for public use.
+The code in this repository is licensed under the [GNU GPL-3.0](LICENSE).
+
+The test questions are property of [Národní pedagogický institut ČR](https://www.npi.cz/) and are used here for educational purposes.
